@@ -1,26 +1,28 @@
 import { Request, Response, NextFunction } from "express";
 import { PostValidator, validateRequest } from "../utils/validators";
-import dbConn from "../services/database";
-import postModel from "../services/models"
+import { dbConn } from "../services/database";
+import { postModel } from "../services/models";
 import { Post } from "./interfaces";
 export default class PostController {
-
-  constructor(){
+  posts!: any;
+  constructor() {
+    this.posts = postModel;
     this.connectToDatabase();
   }
 
-  private connectToDatabase(){
+  private connectToDatabase() {
     return dbConn();
   }
-  
+
   getAllPosts = async (_request: Request, response: Response) => {
-    const posts = await postModel.find().exec();
+
+    const posts = await this.posts.find().exec();
     return response.status(200).send(posts);
   }
 
   getPostById = async (request: Request, response: Response) => {
     const { id } = request.params;
-    const post = await postModel.findById(id).exec();
+    const post = await this.posts.findById(id).exec();
     return response.status(200).send(post);
   }
 
@@ -29,14 +31,19 @@ export default class PostController {
     if (validationErrors) {
       return response.status(400).send(validationErrors);
     }
-    const createdPost = new postModel(request.body);
+    const post: Post = request.body;
+    const createdPost = new postModel(post);
     const savedPost = await createdPost.save();
     return response.status(201).send(savedPost);
   }
 
-  deletePost = async (request: Request, response: Response) => {
+  deletePost = (request: Request, response: Response) => {
     const { id } = request.params;
-    const post = await postModel.findByIdAndDelete(id).exec();
-    return response.status(200).send(post);
+    this.posts.findByIdAndDelete(id)
+      .then((successResponse: any) => {
+        return successResponse
+          ? response.send(200)
+          : response.send(404);
+      });
   }
 }

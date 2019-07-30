@@ -1,9 +1,9 @@
 import { Request, Response } from "express";
 import PostController from "../controllers/PostController";
 
-const { 
-  getAllPosts, 
-  createAPost, 
+const {
+  getAllPosts,
+  createAPost,
   getPostById,
   deletePost
  } = new PostController();
