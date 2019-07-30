@@ -1,22 +1,27 @@
 import { Request, Response, NextFunction } from "express";
 import { PostValidator, validateRequest } from "../utils/validators";
-// import { readFileSync, writeFile } from "fs";
+import dbConn from "../services/database";
+import postModel from "../services/models"
 import { Post } from "./interfaces";
 export default class PostController {
-  private posts: Post[] = [
-    {
-      author: "Marcin",
-      content: "Dolor sit amet",
-      title: "Lorem Ipsum",
-    },
-    {
-      author: "Virginia",
-      content: "Super Feminism",
-      title: "A Room of Ones own",
-    },
-  ];
-  getAllPosts = (request: Request, response: Response): Response => {
-    return response.send(this.posts);
+
+  constructor(){
+    this.connectToDatabase();
+  }
+
+  private connectToDatabase(){
+    return dbConn();
+  }
+  
+  getAllPosts = async (_request: Request, response: Response) => {
+    const posts = await postModel.find().exec();
+    return response.status(200).send(posts);
+  }
+
+  getPostById = async (request: Request, response: Response) => {
+    const { id } = request.params;
+    const post = await postModel.findById(id).exec();
+    return response.status(200).send(post);
   }
 
   createAPost = async (request: Request, response: Response) => {
@@ -24,8 +29,14 @@ export default class PostController {
     if (validationErrors) {
       return response.status(400).send(validationErrors);
     }
-    const post: Post = request.body;
-    this.posts.push(post);
-    return response.send(post);
+    const createdPost = new postModel(request.body);
+    const savedPost = await createdPost.save();
+    return response.status(201).send(savedPost);
+  }
+
+  deletePost = async (request: Request, response: Response) => {
+    const { id } = request.params;
+    const post = await postModel.findByIdAndDelete(id).exec();
+    return response.status(200).send(post);
   }
 }

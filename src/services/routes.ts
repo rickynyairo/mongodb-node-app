@@ -1,7 +1,12 @@
 import { Request, Response } from "express";
 import PostController from "../controllers/PostController";
 
-const { getAllPosts, createAPost } = new PostController();
+const { 
+  getAllPosts, 
+  createAPost, 
+  getPostById,
+  deletePost
+ } = new PostController();
 
 export default [
   {
@@ -21,5 +26,15 @@ export default [
     path: "/api/posts",
     method: "post",
     handler: createAPost
+  },
+  {
+    path: "/api/posts/:id",
+    method: "get",
+    handler: getPostById
+  },
+  {
+    path: "/api/posts/:id",
+    method: "delete",
+    handler: deletePost
   },
 ];
