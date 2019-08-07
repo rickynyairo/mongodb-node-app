@@ -1,5 +1,5 @@
 import { model, Schema, Document } from "mongoose";
-import { Post } from "../controllers/interfaces";
+import { Post, User } from "../controllers/interfaces";
 
 const postSchema = new Schema({
   author: String,
@@ -8,3 +8,10 @@ const postSchema = new Schema({
 });
 
 export const postModel = model<Post & Document>("Post", postSchema);
+
+const userSchema = new Schema({
+  userName: String,
+  password: String,
+});
+
+export const userModel = model<User & Document>("User", userSchema);

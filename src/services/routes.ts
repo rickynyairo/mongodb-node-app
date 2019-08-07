@@ -5,7 +5,8 @@ const {
   getAllPosts,
   createAPost,
   getPostById,
-  deletePost
+  deletePost,
+  modifyPost
  } = new PostController();
 
 export default [
@@ -36,5 +37,10 @@ export default [
     path: "/api/posts/:id",
     method: "delete",
     handler: deletePost
+  },
+  {
+    path: "/api/posts/:id",
+    method: "put",
+    handler: modifyPost
   },
 ];

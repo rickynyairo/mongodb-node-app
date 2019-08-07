@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { PostValidator, validateRequest } from "../utils/validators";
+import { PostValidator, validateRequest, ModifyPostValidator } from "../utils/validators";
 import { dbConn } from "../services/database";
 import { postModel } from "../services/models";
 import { Post } from "./interfaces";
@@ -24,6 +24,19 @@ export default class PostController {
     const { id } = request.params;
     const post = await this.posts.findById(id).exec();
     return response.status(200).send(post);
+  }
+
+  modifyPost = async (request: Request, response: Response) => {
+    const validationErrors = await validateRequest(ModifyPostValidator, request.body);
+    if (validationErrors) {
+      return response.status(400).send(validationErrors);
+    }
+    const { id } = request.params;
+    const postData: Post = request.body;
+    this.posts.findByIdAndUpdate(id, postData, { new: true })
+      .then((post: any) =>
+        response.send(post)
+      );
   }
 
   createAPost = async (request: Request, response: Response) => {

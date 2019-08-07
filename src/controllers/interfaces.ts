@@ -3,3 +3,8 @@ export interface Post {
   content: string;
   title: string;
 }
+
+export interface User {
+  userName: string;
+  password: string;
+}

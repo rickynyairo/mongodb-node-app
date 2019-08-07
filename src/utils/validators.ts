@@ -20,6 +20,19 @@ export class PostValidator {
 
 }
 
+export class ModifyPostValidator {
+
+  @IsString({ message: "$property should be a string" })
+    author!: string;
+
+  @IsString({ message: "$property should be a string" })
+    content!: string;
+
+  @IsString({ message: "$property should be a string" })
+    title!: string;
+
+}
+
 const humanize = (message: string) => {
   const newMessage = message.replace(/_/g, " ");
   return newMessage.charAt(0).toUpperCase() + newMessage.slice(1);
@@ -44,6 +57,7 @@ const message =
 export const validateRequest = async (
   validator: any,
   payload: any,
+  skipMissingProperties = false
 ): Promise<boolean | any> => {
   const resource = new validator();
   let validationErrors = {};
@@ -52,6 +66,7 @@ export const validateRequest = async (
     resource[key] = value;
   });
   const errors = await validate(resource, {
+    skipMissingProperties,
     validationError: { target: true },
     forbidUnknownValues: true
   });
