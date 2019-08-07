@@ -6,12 +6,18 @@ import middleware from "./middleware";
 import errorHandlers from "./middleware/errorHandlers";
 import config from "./config";
 import { validateEnv } from "./utils/validateEnv";
-process.on("uncaughtException", (e) => {
+import { connectToDatabase } from "./services/database";
+import {
+  passportLocalStrategy,
+  passportJwtStrategy
+} from "./services/authentication";
+
+process.on("uncaughtException", e => {
   console.log(e);
   process.exit(1);
 });
 
-process.on("unhandledRejection", (e) => {
+process.on("unhandledRejection", e => {
   console.log(e);
   process.exit(1);
 });
@@ -24,9 +30,13 @@ applyMiddleware(middleware, app);
 applyRoutes(routes, app);
 applyMiddleware(errorHandlers, app);
 
-const PORT  = config.PORT;
+connectToDatabase();
+passportLocalStrategy();
+passportJwtStrategy();
+
+const PORT = config.PORT;
 const server = http.createServer(app);
 
 server.listen(PORT, () =>
-    console.log(`Server is running http://localhost:${PORT}...`)
+  console.log(`Server is running http://localhost:${PORT}...`)
 );

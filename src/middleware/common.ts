@@ -5,6 +5,7 @@ import compression from "compression";
 import expressSession from "express-session";
 import config from "../config";
 import passport from "passport";
+import { validateRequest } from "../utils/validators";
 // const CassandraStore = require("cassandra-store");
 
 export const handleCors = (router: Router) =>
@@ -31,6 +32,21 @@ export const passportMiddleware = (router: Router) => {
   router.use(passport.session());
 };
 
+export const validationMiddleware = (
+  validator: Object,
+  skipMissing?: boolean
+) => async (request: Request, response: Response, next: NextFunction) => {
+  const validationErrors = await validateRequest(
+    validator,
+    request.body,
+    skipMissing
+  );
+  if (validationErrors) {
+    return response.status(400).send(validationErrors);
+  }
+  next();
+};
+
 export const sessionMiddleware = (router: Router) => {
   const userOptions = {
     table: "sessions",
@@ -43,10 +59,12 @@ export const sessionMiddleware = (router: Router) => {
       }
     }
   };
-  router.use(expressSession({
-    secret: config.SESSION_SECRET,
-    resave: true,
-    saveUninitialized: true,
-    // store: new CassandraStore(userOptions)
-  }));
+  router.use(
+    expressSession({
+      secret: config.SESSION_SECRET,
+      resave: true,
+      saveUninitialized: true
+      // store: new CassandraStore(userOptions)
+    })
+  );
 };

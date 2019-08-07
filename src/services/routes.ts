@@ -1,5 +1,13 @@
 import { Request, Response } from "express";
-import PostController from "../controllers/PostController";
+import passport from "passport";
+import PostController from "../controllers/postController";
+import UserController from "../controllers/userController";
+import {
+  UserValidator,
+  PostValidator,
+  ModifyPostValidator
+} from "../utils/validators";
+import { validationMiddleware } from "../middleware/common";
 
 const {
   getAllPosts,
@@ -7,7 +15,9 @@ const {
   getPostById,
   deletePost,
   modifyPost
- } = new PostController();
+} = new PostController();
+
+const { registerUser, loginUser } = new UserController();
 
 export default [
   {
@@ -26,7 +36,13 @@ export default [
   {
     path: "/api/posts",
     method: "post",
-    handler: createAPost
+    handler: [
+      passport.authenticate("JWT", { session: false }, (error, data) => {
+        console.log("error......>\n", error, "data......>\n", data);
+      }),
+      validationMiddleware(PostValidator),
+      createAPost
+    ]
   },
   {
     path: "/api/posts/:id",
@@ -36,11 +52,29 @@ export default [
   {
     path: "/api/posts/:id",
     method: "delete",
-    handler: deletePost
+    handler: [passport.authenticate("jwt", { session: false }), deletePost]
   },
   {
     path: "/api/posts/:id",
     method: "put",
-    handler: modifyPost
+    handler: [
+      passport.authenticate("jwt", { session: false }),
+      validationMiddleware(ModifyPostValidator),
+      modifyPost
+    ]
   },
+  {
+    path: "/api/signup",
+    method: "post",
+    handler: [validationMiddleware(UserValidator), registerUser]
+  },
+  {
+    path: "/api/login",
+    method: "post",
+    handler: [
+      validationMiddleware(UserValidator),
+      passport.authenticate("local"),
+      loginUser
+    ]
+  }
 ];

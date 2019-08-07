@@ -1,0 +1,55 @@
+import { model, Schema, Document } from "mongoose";
+import { hash, compare } from "bcrypt";
+import jwt from "jsonwebtoken";
+import { User } from "../controllers/interfaces";
+import config from "../config";
+
+const userSchema = new Schema({
+  userName: String,
+  password: String
+});
+
+export const generateJWT = (user: any) => {
+  const expiresIn = "7d";
+  const { userName, id } = user;
+  return jwt.sign(
+    {
+      userName,
+      id,
+      expiresIn
+    },
+    config.SESSION_SECRET,
+    { expiresIn }
+  );
+};
+
+export const toAuthJSON = (user: any) => {
+  const { userName, id } = user;
+  return {
+    id,
+    userName,
+    token: generateJWT(user)
+  };
+};
+
+export const userModel = model<User & Document>("User", userSchema);
+
+export const createUser = (user: User & Document, callback: any) => {
+  hash(user.password, 10, (error, hashedPassword) => {
+    if (error) throw error;
+    user.password = hashedPassword;
+    user.save(callback);
+  });
+};
+
+export const getUserByUserName = (userName: string) => {
+  return userModel.findOne({ userName });
+};
+
+export const getUserById = (id: string) => {
+  return userModel.findById(id);
+};
+
+export const comparePassword = (password: string, hash: string) => {
+  return compare(password, hash);
+};

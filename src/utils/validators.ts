@@ -1,35 +1,54 @@
 import {
     validate,
     IsString,
-    IsDefined
+    IsDefined,
+    MinLength,
+    IsAlphanumeric,
+    Min
 } from "class-validator";
 
 export class PostValidator {
 
   @IsDefined({ message: "$property is required in the request" })
-    @IsString({ message: "$property should be a string" })
-    author!: string;
+  @IsString({ message: "$property should be a string" })
+  author!: string;
 
   @IsDefined({ message: "$property is required in the request" })
-    @IsString({ message: "$property should be a string" })
-    content!: string;
+  @IsString({ message: "$property should be a string" })
+  content!: string;
 
   @IsDefined({ message: "$property is required in the request" })
-    @IsString({ message: "$property should be a string" })
-    title!: string;
+  @IsString({ message: "$property should be a string" })
+  title!: string;
 
 }
 
 export class ModifyPostValidator {
 
   @IsString({ message: "$property should be a string" })
-    author!: string;
+  author!: string;
 
   @IsString({ message: "$property should be a string" })
-    content!: string;
+  content!: string;
 
   @IsString({ message: "$property should be a string" })
-    title!: string;
+  title!: string;
+
+}
+
+
+export class UserValidator {
+
+  @IsDefined({ message: "$property is required in the request" })
+  @IsString({ message: "$property should be a string" })
+  @MinLength(4, { message: "$property should have atleast 4 characters" })
+  userName!: string;
+
+  @IsDefined({ message: "$property is required in the request" })
+  @IsAlphanumeric({ message: "$property should only have numbers and letters" })
+  @MinLength(4, { message: "$property should have atleast 4 characters" })
+  password!: string;
+
 
 }
 

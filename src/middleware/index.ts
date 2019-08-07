@@ -3,7 +3,8 @@ import {
   handleBodyRequestParsing,
   handleCompression,
   loggerMiddleware,
-  sessionMiddleware
+  sessionMiddleware,
+  passportMiddleware
 } from "./common";
 
 import { handleAPIDocs } from "./apiDocs";
@@ -14,5 +15,6 @@ export default [
   handleCompression,
   handleAPIDocs,
   loggerMiddleware,
-  sessionMiddleware
+  sessionMiddleware,
+  passportMiddleware
 ];
