@@ -17,7 +17,7 @@ const {
   modifyPost
 } = new PostController();
 
-const { registerUser, loginUser } = new UserController();
+const { registerUser, loginUser, getAllPostsOfUser } = new UserController();
 
 export default [
   {
@@ -37,9 +37,7 @@ export default [
     path: "/api/posts",
     method: "post",
     handler: [
-      passport.authenticate("JWT", { session: false }, (error, data) => {
-        console.log("error......>\n", error, "data......>\n", data);
-      }),
+      passport.authenticate("jwt", { session: false }),
       validationMiddleware(PostValidator),
       createAPost
     ]
@@ -73,8 +71,16 @@ export default [
     method: "post",
     handler: [
       validationMiddleware(UserValidator),
-      passport.authenticate("local"),
+      passport.authenticate("login", { failWithError: true }),
       loginUser
+    ]
+  },
+  {
+    path: "/api/users/:id/posts",
+    method: "get",
+    handler: [
+      passport.authenticate("jwt", { session: false }),
+      getAllPostsOfUser
     ]
   }
 ];

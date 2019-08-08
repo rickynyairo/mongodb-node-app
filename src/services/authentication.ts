@@ -8,8 +8,9 @@ import {
 } from "../models/userModel";
 import config from "../config";
 
-export const passportLocalStrategy = () => {
+export const passportLoginStrategy = () => {
   passport.use(
+    "login",
     new LocalStrategy(
       { usernameField: "userName" },
       async (userName: string, password: string, done) => {
@@ -25,6 +26,7 @@ export const passportLocalStrategy = () => {
             ? done(null, user)
             : done(null, false, { message: "Invalid Username or Password" });
         } catch (error) {
+          console.log("error>>>>>>>", error);
           done(error, null);
           throw error;
         }
@@ -48,20 +50,16 @@ export const passportLocalStrategy = () => {
 export const passportJwtStrategy = () => {
   const options = {
     jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-    secretOrKey: config.SESSION_SECRET,
-    issuer: "accounts.nyairo.com",
-    audience: "nyairo.com"
+    secretOrKey: config.SESSION_SECRET
   };
   passport.use(
+    "jwt",
     new JwtStrategy(options, async (jwtPayload, done) => {
       try {
         const user = await getUserById(jwtPayload.id);
-        console.log("jwt here:", user);
-        done(false, user);
+        return done(false, user);
       } catch (error) {
-        console.log("jwt error:", error);
         done(error, false);
-        throw error;
       }
     })
   );

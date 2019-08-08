@@ -1,14 +1,16 @@
 import {
-    validate,
-    IsString,
-    IsDefined,
-    MinLength,
-    IsAlphanumeric,
-    Min
+  validate,
+  IsString,
+  IsDefined,
+  MinLength,
+  IsAlphanumeric,
+  ValidateNested
 } from "class-validator";
-
+interface Address {
+  city: string;
+  street: string;
+}
 export class PostValidator {
-
   @IsDefined({ message: "$property is required in the request" })
   @IsString({ message: "$property should be a string" })
   author!: string;
@@ -20,11 +22,9 @@ export class PostValidator {
   @IsDefined({ message: "$property is required in the request" })
   @IsString({ message: "$property should be a string" })
   title!: string;
-
 }
 
 export class ModifyPostValidator {
-
   @IsString({ message: "$property should be a string" })
   author!: string;
 
@@ -33,12 +33,9 @@ export class ModifyPostValidator {
 
   @IsString({ message: "$property should be a string" })
   title!: string;
-
 }
 
-
 export class UserValidator {
-
   @IsDefined({ message: "$property is required in the request" })
   @IsString({ message: "$property should be a string" })
   @MinLength(4, { message: "$property should have atleast 4 characters" })
@@ -49,7 +46,8 @@ export class UserValidator {
   @MinLength(4, { message: "$property should have atleast 4 characters" })
   password!: string;
 
-
+  @IsDefined({ message: "$property is required in the request" })
+  address!: Address;
 }
 
 const humanize = (message: string) => {
@@ -59,10 +57,12 @@ const humanize = (message: string) => {
 
 const formatError = (error: any) => {
   const { property, constraints } = error;
-  const messages: string[] = Object.values(constraints);
+  const messages: string[] = Object.values(
+    constraints || { error: "check your request payload" }
+  );
 
   return {
-    [property]: messages.map(message => humanize(message)),
+    [property]: messages.map(message => humanize(message))
   };
 };
 const message =
@@ -100,12 +100,12 @@ export const validateRequest = async (
   for (const error of errors) {
     validationErrors = {
       ...validationErrors,
-      ...formatError(error),
+      ...formatError(error)
     };
   }
 
   return {
     message,
-    errors: validationErrors,
+    errors: validationErrors
   };
 };

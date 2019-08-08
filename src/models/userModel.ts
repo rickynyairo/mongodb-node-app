@@ -4,10 +4,18 @@ import jwt from "jsonwebtoken";
 import { User } from "../controllers/interfaces";
 import config from "../config";
 
+const addressSchema = new Schema({
+  city: String,
+  street: String
+});
+
 const userSchema = new Schema({
+  address: addressSchema,
   userName: String,
   password: String
 });
+
+export const userModel = model<User & Document>("User", userSchema);
 
 export const generateJWT = (user: any) => {
   const expiresIn = "7d";
@@ -31,8 +39,6 @@ export const toAuthJSON = (user: any) => {
     token: generateJWT(user)
   };
 };
-
-export const userModel = model<User & Document>("User", userSchema);
 
 export const createUser = (user: User & Document, callback: any) => {
   hash(user.password, 10, (error, hashedPassword) => {

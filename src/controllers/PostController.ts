@@ -8,7 +8,10 @@ export default class PostController {
   }
 
   getAllPosts = async (_request: Request, response: Response) => {
-    const posts = await this.posts.find().exec();
+    const posts = await this.posts
+      .find()
+      .populate("author", "userName")
+      .exec();
     return response.status(200).send(posts);
   };
 
@@ -28,8 +31,12 @@ export default class PostController {
 
   createAPost = async (request: Request, response: Response) => {
     const post: Post = request.body;
-    const createdPost = new postModel(post);
+    const createdPost = new postModel({
+      ...post,
+      author: request.user._id
+    });
     const savedPost = await createdPost.save();
+    await savedPost.populate("author", "userName").execPopulate();
     return response.status(201).send(savedPost);
   };
 

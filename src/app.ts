@@ -8,7 +8,7 @@ import config from "./config";
 import { validateEnv } from "./utils/validateEnv";
 import { connectToDatabase } from "./services/database";
 import {
-  passportLocalStrategy,
+  passportLoginStrategy,
   passportJwtStrategy
 } from "./services/authentication";
 
@@ -31,7 +31,7 @@ applyRoutes(routes, app);
 applyMiddleware(errorHandlers, app);
 
 connectToDatabase();
-passportLocalStrategy();
+passportLoginStrategy();
 passportJwtStrategy();
 
 const PORT = config.PORT;

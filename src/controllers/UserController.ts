@@ -1,6 +1,7 @@
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import { Document } from "mongoose";
-import { userModel, createUser, generateJWT } from "../models/userModel";
+import { userModel, createUser, toAuthJSON } from "../models/userModel";
+import { postModel } from "../models/postModel";
 import { User } from "./interfaces";
 export default class UserController {
   users!: any;
@@ -8,12 +9,22 @@ export default class UserController {
     this.users = userModel;
   }
 
-  loginUser = async (request: Request, response: Response) => {
+  loginUser = async (
+    error: any,
+    request: Request,
+    response: Response,
+    _next: NextFunction
+  ) => {
+    if (error) {
+      return response
+        .status(401)
+        .send(error)
+        .end();
+    }
     const { userName, id } = request.user;
-    const token = generateJWT(request.user);
     return response
       .status(200)
-      .send({ message: "success", userName, id, token });
+      .send({ message: "success", ...toAuthJSON({ userName, id }) });
   };
 
   registerUser = async (request: Request, response: Response) => {
@@ -25,11 +36,29 @@ export default class UserController {
     }
     await createUser(newUser, (error: any, savedUser: any) => {
       if (error) throw error;
-      const token = generateJWT(request.body);
       return response
         .status(201)
-        .send({ ...request.body, token })
+        .send({
+          message: "success",
+          ...toAuthJSON({
+            userName: savedUser.userName,
+            id: savedUser.id
+          })
+        })
         .end();
     });
+  };
+  getAllPostsOfUser = async (
+    request: Request,
+    response: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const userIdParam = request.params.id;
+      const posts = await postModel.find({ author: userIdParam });
+      return response.send(posts);
+    } catch (error) {
+      next(error);
+    }
   };
 }
