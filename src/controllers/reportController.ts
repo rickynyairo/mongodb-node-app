@@ -42,15 +42,27 @@ export default class ReportController {
           foreignField: "author",
           as: "articles",
         }
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "users._id",
+          foreignField: "_id",
+          as: "users",
+        }
+      },
+      {
+        $addFields: {
+          amountOfArticles: {
+            $size: "$articles"
+          },
+        },
+      },
+      {
+        $sort: {
+          amountOfArticles: -1,
+        },
       }
-      // {
-      //   $lookup: {
-      //     from: 'users',
-      //     localField: 'users._id',
-      //     foreignField: '_id',
-      //     as: 'users',
-      //   }
-      // }
     ]);
     return response.send({
       usersByCities
