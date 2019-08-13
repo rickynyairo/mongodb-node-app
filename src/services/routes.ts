@@ -2,6 +2,8 @@ import { Request, Response } from "express";
 import passport from "passport";
 import PostController from "../controllers/postController";
 import UserController from "../controllers/userController";
+import ReportController from "../controllers/reportController";
+
 import {
   UserValidator,
   PostValidator,
@@ -18,6 +20,8 @@ const {
 } = new PostController();
 
 const { registerUser, loginUser, getAllPostsOfUser } = new UserController();
+
+const { generateReport } = new ReportController();
 
 export default [
   {
@@ -82,5 +86,10 @@ export default [
       passport.authenticate("jwt", { session: false }),
       getAllPostsOfUser
     ]
+  },
+  {
+    path: "/api/report",
+    method: "get",
+    handler: [passport.authenticate("jwt", { session: false }), generateReport]
   }
 ];

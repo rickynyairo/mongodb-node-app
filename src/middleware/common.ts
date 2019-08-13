@@ -22,7 +22,7 @@ export const handleCompression = (router: Router) => {
 
 export const loggerMiddleware = (router: Router) => {
   router.use((req: Request, _res: Response, next: NextFunction) => {
-    console.log(req.method, ": ", req.path);
+    console.log(req.method, "\t:\t", req.path);
     next();
   });
 };
