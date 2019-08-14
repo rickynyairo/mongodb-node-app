@@ -14,4 +14,4 @@ EXPOSE 3002
 
 RUN yarn
 
-CMD ["yarn", "start:node"]
+CMD ["yarn", "dev"]

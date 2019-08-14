@@ -7,7 +7,8 @@ import ReportController from "../controllers/reportController";
 import {
   UserValidator,
   PostValidator,
-  ModifyPostValidator
+  ModifyPostValidator,
+  LoginValidator
 } from "../utils/validators";
 import { validationMiddleware } from "../middleware/common";
 
@@ -31,6 +32,20 @@ export default [
       // redirect user to the api docs
       res.redirect("/api-docs");
     }
+  },
+  {
+    path: "/api/signup",
+    method: "post",
+    handler: [validationMiddleware(UserValidator), registerUser]
+  },
+  {
+    path: "/api/login",
+    method: "post",
+    handler: [
+      validationMiddleware(LoginValidator),
+      passport.authenticate("login", { failWithError: true }),
+      loginUser
+    ]
   },
   {
     path: "/api/posts",
@@ -63,20 +78,6 @@ export default [
       passport.authenticate("jwt", { session: false }),
       validationMiddleware(ModifyPostValidator),
       modifyPost
-    ]
-  },
-  {
-    path: "/api/signup",
-    method: "post",
-    handler: [validationMiddleware(UserValidator), registerUser]
-  },
-  {
-    path: "/api/login",
-    method: "post",
-    handler: [
-      validationMiddleware(UserValidator),
-      passport.authenticate("login", { failWithError: true }),
-      loginUser
     ]
   },
   {

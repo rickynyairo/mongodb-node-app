@@ -35,7 +35,8 @@ export class ModifyPostValidator {
   title!: string;
 }
 
-export class UserValidator {
+export class LoginValidator {
+
   @IsDefined({ message: "$property is required in the request" })
   @IsString({ message: "$property should be a string" })
   @MinLength(4, { message: "$property should have atleast 4 characters" })
@@ -45,6 +46,8 @@ export class UserValidator {
   @IsAlphanumeric({ message: "$property should only have numbers and letters" })
   @MinLength(4, { message: "$property should have atleast 4 characters" })
   password!: string;
+}
+export class UserValidator extends LoginValidator {
 
   @IsDefined({ message: "$property is required in the request" })
   address!: Address;
