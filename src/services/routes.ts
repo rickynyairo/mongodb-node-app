@@ -43,7 +43,7 @@ export default [
     method: "post",
     handler: [
       validationMiddleware(LoginValidator),
-      passport.authenticate("login", { failWithError: true }),
+      passport.authenticate("login"),
       loginUser
     ]
   },

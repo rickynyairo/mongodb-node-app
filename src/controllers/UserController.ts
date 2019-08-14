@@ -10,17 +10,9 @@ export default class UserController {
   }
 
   loginUser = async (
-    error: any,
     request: Request,
     response: Response,
-    _next: NextFunction
   ) => {
-    if (error) {
-      return response
-        .status(401)
-        .send(error)
-        .end();
-    }
     const { userName, id } = request.user;
     return response
       .status(200)

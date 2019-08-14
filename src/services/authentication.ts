@@ -1,5 +1,5 @@
 import passport from "passport";
-import { Strategy as LocalStrategy } from "passport-local";
+import { Strategy as LoginStrategy } from "passport-local";
 import { Strategy as JwtStrategy, ExtractJwt } from "passport-jwt";
 import {
   getUserByUserName,
@@ -11,39 +11,33 @@ import config from "../config";
 export const passportLoginStrategy = () => {
   passport.use(
     "login",
-    new LocalStrategy(
+    new LoginStrategy(
       { usernameField: "userName" },
       async (userName: string, password: string, done) => {
+        const message = "Invalid Username or Password";
         try {
           const user = await getUserByUserName(userName);
           if (!user) {
-            return done(null, false, {
-              message: "Invalid Username or Password"
-            });
+            return done(false, false, { message });
           }
           const isMatch = await comparePassword(password, user.password);
-          return isMatch
-            ? done(null, user)
-            : done(null, false, { message: "Invalid Username or Password" });
+          isMatch
+            ? done(false, user)
+            : done(false, false, { message });
         } catch (error) {
           console.log("error>>>>>>>", error);
-          done(error, null);
           throw error;
         }
       }
     )
   );
+
   passport.serializeUser((user: any, done) => {
-    done(null, user.id);
+    done(null, user);
   });
 
-  passport.deserializeUser(async (id: string, done) => {
-    try {
-      const user = await getUserById(id);
-      done(user);
-    } catch (error) {
-      done(error, null);
-    }
+  passport.deserializeUser(async (user: any, done) => {
+    done(false, user);
   });
 };
 
