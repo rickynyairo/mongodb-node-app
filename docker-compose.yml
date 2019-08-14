@@ -1,0 +1,22 @@
+version: "3.1"
+volumes:
+  mongo_data:
+services:
+  api:
+    build: .
+    restart: unless-stopped
+    image: api:latest
+    ports:
+      - 3002:3002
+      - 9229:9229
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    environment:
+      - NODE_ENV=${NODE_ENV}
+      - MONGO_DB_URL="${MONGO_DB_URL}"
+      - SESSION_SECRET=${SESSION_SECRET}
+      - PORT=${PORT}
+    command: yarn start:node
+    tty: true
+    stdin_open: true
