@@ -11,24 +11,27 @@ SERVICE_TARGET := api
 # if vars not set specifically: try default to environment, else fixed value.
 # strip to ensure spaces are removed in future editorial mistakes.
 # tested to work consistently on popular Linux flavors and Mac.
-ifeq ($(user),)
-# USER retrieved from env, UID from shell.
-HOST_USER ?= $(strip $(if $(USER),$(USER),nodummy))
-HOST_UID ?= $(strip $(if $(shell id -u),$(shell id -u),4000))
-else
-# allow override by adding user= and/ or uid=  (lowercase!).
-# uid= defaults to 0 if user= set (i.e. root).
-HOST_USER = $(user)
-HOST_UID = $(strip $(if $(uid),$(uid),0))
-endif
+
+## >>> Host User Configs
+
+# ifeq ($(user),)
+# # USER retrieved from env, UID from shell.
+# HOST_USER ?= $(strip $(if $(USER),$(USER),nodummy))
+# HOST_UID ?= $(strip $(if $(shell id -u),$(shell id -u),4000))
+# else
+# # allow override by adding user= and/ or uid=  (lowercase!).
+# # uid= defaults to 0 if user= set (i.e. root).
+# HOST_USER = $(user)
+# HOST_UID = $(strip $(if $(uid),$(uid),0))
+# endif
+
+## >>> Host User Configs
 
 THIS_FILE := $(lastword $(MAKEFILE_LIST))
 CMD_ARGUMENTS ?= $(cmd)
 
 # export such that its passed to shell functions for Docker to pick up.
 export PROJECT_NAME
-export HOST_USER
-export HOST_UID
 
 # all our targets are phony (no files to check).
 .PHONY: shell help build rebuild service login test clean prune
@@ -45,10 +48,10 @@ export HOST_UID
 shell:
 ifeq ($(CMD_ARGUMENTS),)
 	# no command is given, default to shell
-	docker-compose -p $(PROJECT_NAME)_$(HOST_UID) run --rm $(SERVICE_TARGET) sh
+	docker-compose -p $(PROJECT_NAME) run --rm $(SERVICE_TARGET) sh
 else
 	# run the command
-	docker-compose -p $(PROJECT_NAME)_$(HOST_UID) run --rm $(SERVICE_TARGET) sh -c "$(CMD_ARGUMENTS)"
+	docker-compose -p $(PROJECT_NAME) run --rm $(SERVICE_TARGET) sh -c "$(CMD_ARGUMENTS)"
 endif
 
 # Regular Makefile part for buildpypi itself
@@ -56,14 +59,14 @@ help:
 	@echo ''
 	@echo 'Usage: make [TARGET] [EXTRA_ARGUMENTS]'
 	@echo 'Targets:'
-	@echo '  build    	build docker --image-- for current user: $(HOST_USER)(uid=$(HOST_UID))'
-	@echo '  rebuild  	rebuild docker --image-- for current user: $(HOST_USER)(uid=$(HOST_UID))'
-	@echo '  test     	test docker --container-- for current user: $(HOST_USER)(uid=$(HOST_UID))'
-	@echo '  service   	run as service --container-- for current user: $(HOST_USER)(uid=$(HOST_UID))'
-	@echo '  login   	run as service and login --container-- for current user: $(HOST_USER)(uid=$(HOST_UID))'
-	@echo '  clean    	remove docker --image-- for current user: $(HOST_USER)(uid=$(HOST_UID))'
+	@echo '  build    	build docker --image-- for current user'
+	@echo '  rebuild  	rebuild docker --image-- for current user'
+	@echo '  test     	test docker --container-- for current user'
+	@echo '  service   	run as service --container-- for current user'
+	@echo '  login   	run as service and login --container-- for current user'
+	@echo '  clean    	remove docker --image-- for current user'
 	@echo '  prune    	shortcut for docker system prune -af. Cleanup inactive containers and cache.'
-	@echo '  shell      run docker --container-- for current user: $(HOST_USER)(uid=$(HOST_UID))'
+	@echo '  shell      run docker --container-- for current user'
 	@echo ''
 	@echo 'Extra arguments:'
 	@echo 'cmd=:	make cmd="whoami"'
@@ -77,11 +80,11 @@ rebuild:
 
 service:
 	# run as a (background) service
-	docker-compose -p $(PROJECT_NAME)_$(HOST_UID) up -d $(SERVICE_TARGET)
+	docker-compose -p $(PROJECT_NAME) up -d $(SERVICE_TARGET)
 
 login: service
 	# run as a service and attach to it
-	docker exec -it $(PROJECT_NAME)_$(HOST_UID) sh
+	docker exec -it $(PROJECT_NAME) sh
 
 build:
 	# only build the container. Note, docker does this also if you apply other targets.
@@ -89,9 +92,9 @@ build:
 
 clean:
 	# remove created images
-	@docker-compose -p $(PROJECT_NAME)_$(HOST_UID) down --remove-orphans --rmi all 2>/dev/null \
-	&& echo 'Image(s) for "$(PROJECT_NAME):$(HOST_USER)" removed.' \
-	|| echo 'Image(s) for "$(PROJECT_NAME):$(HOST_USER)" already removed.'
+	@docker-compose -p $(PROJECT_NAME) down --remove-orphans --rmi all 2>/dev/null \
+	&& echo 'Image(s) for "$(PROJECT_NAME)" removed.' \
+	|| echo 'Image(s) for "$(PROJECT_NAME)" already removed.'
 
 prune:
 	# clean all that is not actively used
@@ -99,4 +102,4 @@ prune:
 
 test:
 	# here it is useful to add your own customised tests
-	docker-compose -p $(PROJECT_NAME)_$(HOST_UID) run --rm $(SERVICE_TARGET) sh -c 'yarn test'
+	docker-compose -p $(PROJECT_NAME) run --rm $(SERVICE_TARGET) sh -c 'yarn test'

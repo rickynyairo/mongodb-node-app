@@ -3,14 +3,15 @@ volumes:
   mongo_data:
 services:
   api:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      # These variables are passed to Dockerfile.
-      args:
-        - HOST_UID=${HOST_UID:-4000}
-        - HOST_USER=${HOST_USER:-nodummy}
+    build: .
+    # context: .
+    # dockerfile: Dockerfile
+    # These variables are passed to Dockerfile.
+    # args:
+    #   - HOST_UID=${HOST_UID:-4000}
+    #   - HOST_USER=${HOST_USER:-nodummy}
     restart: unless-stopped
+    container_name: mongo-node-express
     image: api:latest
     # links:
     #   - mongo
@@ -18,16 +19,14 @@ services:
       - 3002:3002
       - 9229:9229
     volumes:
-      - ${PWD:-.}:/home/${HOST_USER}/${PROJECT_NAME}
-      - /home/${HOST_USER}/${PROJECT_NAME}/node_modules
-
+      - ${PWD:-.}:/usr/src/app
+      - /usr/src/app/node_modules
     environment:
       - NODE_ENV=${NODE_ENV}
       - MONGO_DB_URL=${MONGO_DB_URL}
       - SESSION_SECRET=${SESSION_SECRET}
       - PORT=${PORT}
-      - UID=${HOST_UID:-4000}
-    command: ["yarn", "dev"]
+    command: yarn start:node
     tty: true
     stdin_open: true
   # mongo:
