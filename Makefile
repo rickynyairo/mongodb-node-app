@@ -90,6 +90,10 @@ build:
 	# only build the container. Note, docker does this also if you apply other targets.
 	docker-compose build $(SERVICE_TARGET)
 
+stop:
+	# stop running containers
+	docker-compose -p $(PROJECT_NAME) down
+
 clean:
 	# remove created images
 	@docker-compose -p $(PROJECT_NAME) down --remove-orphans --rmi all 2>/dev/null \

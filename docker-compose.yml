@@ -13,8 +13,8 @@ services:
     restart: unless-stopped
     container_name: mongo-node-express
     image: api:latest
-    # links:
-    #   - mongo
+    links:
+      - mongo
     ports:
       - 3002:3002
       - 9229:9229
@@ -29,10 +29,10 @@ services:
     command: yarn start:node
     tty: true
     stdin_open: true
-  # mongo:
-  #   restart: unless-stopped
-  #   image: mongo:3.6.4
-  #   volumes:
-  #     - mongo_data:/data/db
-  #   ports:
-  #     - 27017:27017
+  mongo:
+    restart: unless-stopped
+    image: mongo:3.6.4
+    volumes:
+      - mongo_data:/data/db
+    ports:
+      - 27017:27017
